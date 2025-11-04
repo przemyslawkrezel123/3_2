@@ -12,16 +12,17 @@ const PORT = process.env.PORT || 3000;
 
 // Twój token NOAA
 const API_TOKEN = "wBtiiKzDVwzqmJPIRlrMnJIBQGjTMsZA";
-const API_BASE = "https://www.ncei.noaa.gov/cdo-web/api/v2";
+const API_BASE = "https://www.ncei.noaa.gov/cdo-web/api/v2/data";
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 
 
-async function proxyFetch(endpoint) {
-  const response = await fetch(`${API_BASE}${endpoint}`, {
+async function proxyFetch(query = "") {
+  const response = await fetch(`${API_BASE}${query}`, {
     headers: { token: API_TOKEN },
   });
+
 
   if (!response.ok) {
     const text = await response.text();
@@ -48,6 +49,17 @@ app.get("/datasets", async (req, res) => {
     res.json(data);
   } catch (err) {
     console.error("Błąd proxy /datasets:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/data", async (req, res) => {
+  try {
+    const query = new URLSearchParams(req.query).toString();
+    const data = await proxyFetch(`?${query}`);
+    res.json(data);
+  } catch (err) {
+    console.error("Błąd proxy /data:", err.message);
     res.status(500).json({ error: err.message });
   }
 });

@@ -1,41 +1,46 @@
-    const button = document.getElementById("searchBtn");
-    const tableBody = document.getElementById("resultsBody");
-    const errorBox = document.getElementById("error");
-    const status = document.getElementById("status");
+const button = document.getElementById("searchBtn");
+const tableBody = document.getElementById("resultsBody");
+const errorBox = document.getElementById("error");
+const status = document.getElementById("status");
 
-    button.addEventListener("click", downloadData);
+button.addEventListener("click", downloadData);
 
-    async function downloadData() {
-      errorBox.style.display = "none";
-    
-      try {
-        const res = await fetch("/datasets");
+async function downloadData() {
+  errorBox.style.display = "none";
+  tableBody.innerHTML = "";
 
-        if (!res.ok) {
-          const t = await res.text();
-          throw new Error(`Błąd serwera: ${res.status} ${t}`);
-        }
-        const data = await res.json();
+  const datasetid = document.getElementById("datasetid").value;
+  const locationid = document.getElementById("locationid").value;
+  const startdate = document.getElementById("startdate").value;
+  const enddate = document.getElementById("enddate").value;
+  const limit = document.getElementById("limit").value;
 
-        tableBody.innerHTML = "";
-        data.results.forEach(dataset => {
-          const id = dataset.id || "-";
-          const name = dataset.name || "-";
-          const datacoverage = dataset.datacoverage || "-";
-          const mindate = dataset.mindate || "-";
-          const maxdate = dataset.maxdate || "-";
+  const query = new URLSearchParams({ datasetid, locationid, startdate, enddate, limit }).toString();
 
-          const row = `
-            <tr>
-              <td>${id}</td>
-              <td>${name}</td>
-              <td>${datacoverage}</td>
-              <td>${mindate}</td>
-              <td>${maxdate}</td>
-            </tr>`;
-          tableBody.innerHTML += row;
-        });
-      } catch (err) {
-        tableBody.innerHTML = `<tr><td colspan="5">Błąd: ${err.message}</td></tr>`;
-      }
+  try {
+    const res = await fetch(`/data?${query}`);
+    if (!res.ok) throw new Error(`Błąd serwera: ${res.status}`);
+
+    const data = await res.json();
+
+    if (!data.results) {
+      tableBody.innerHTML = `<tr><td colspan="5">Brak danych</td></tr>`;
+      return;
     }
+
+    data.results.forEach(d => {
+      const row = `
+        <tr>
+          <td>${d.datatype || "-"}</td>
+          <td>${d.station || "-"}</td>
+          <td>${d.date || "-"}</td>
+          <td>${d.value ?? "-"}</td>
+          <td>${d.attributes || "-"}</td>
+        </tr>`;
+      tableBody.innerHTML += row;
+    });
+  } catch (err) {
+    tableBody.innerHTML = `<tr><td colspan="5">Błąd: ${err.message}</td></tr>`;
+  }
+}
+

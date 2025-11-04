@@ -9,23 +9,23 @@
   <body>
     <div class="card">
       <h1>Pobierz dane klimatyczne NOAA</h1>
-        <button id="searchBtn">Pobierz dane</button>
+        <div>
+          <label>datasetid: <input id="datasetid" value="GHCND"></label><br>
+          <label>locationid: <input id="locationid" value="ZIP:28801"></label><br>
+          <label>startdate: <input id="startdate" type="date" value="2010-05-01"></label>
+          <label>enddate: <input id="enddate" type="date" value="2010-05-01"></label><br>
+          <label>limit: <input id="limit" type="number" value="25" min="1" max="1000"></label>
+          <button id="searchBtn">Pobierz dane</button>
+        </div>
       </div>
       <p id="status"></p>
       <p id="error" style="display:none"></p>
-
-      <table aria-live="polite" id="resultsTable">
+      
+      <table id="results" aria-live="polite">
         <thead>
-          <tr>
-            <th>DatasetId</th>
-            <th>Name</th>
-            <th>Data Coverage</th>
-            <th>MinDate</th>
-            <th>MaxDate</th>
-         </tr>
+          <tr><th>datatype</th><th>station</th><th>date</th><th>value</th><th>attributes</th></tr>
         </thead>
-        <tbody id="resultsBody">
-        </tbody>
+        <tbody id="resultsBody"></tbody>
       </table>
     </div>
     
